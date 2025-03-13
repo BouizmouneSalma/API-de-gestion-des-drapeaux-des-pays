@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -24,29 +24,34 @@ class AuthController extends Controller
 
         return response()->json(['message'=>'nod 3la slaamtk'],201);
     }
-
-    public function login(Request $request){
-
-        $request->validate([
-            "email"=>"required|string|max:300|email|unique:users",
-            "password"=>"required|min:4"
-        ]);
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-        return response()->json([
-            'message' => 'Invalid credentials',
-        ], 401); 
+    public function login(Request $request)
+    {
+        try {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
+    
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                $token = $user->createToken('MyApp')->plainTextToken;
+    
+                return response()->json([
+                    'message' => 'Login réussi',
+                    'user' => $user,
+                    'token' => $token
+                ]);
+            }
+    
+            return response()->json(['message' => 'Identifiants incorrects'], 401);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erreur interne',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-        $user = $request->user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-
-        return response()->json([
-            'message' => 'Login fait',
-            'token' => $token,
-        ]);
-
-    }
+    
 
     public function logout(Request $request){
        $request->user()->tokens()->delete();
