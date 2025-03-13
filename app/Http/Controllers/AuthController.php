@@ -3,63 +3,53 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Inscription d'un utilisateur
-    public function register(Request $request)
-    {
+    public function register(Request $request){
+        
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            "name"=>"required|string|max:300",
+            "email"=>"required|string|max:300|email|unique:users",
+            "password"=>"required|min:4"
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        $user=User::create([
+            "name"=>$request->name,
+            "email"=>$request->email,
+            "password"=>Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
-        ]);
+        return response()->json(['message'=>'nod 3la slaamtk'],201);
     }
 
-    // Connexion d'un utilisateur
-    public function login(Request $request)
-    {
+    public function login(Request $request){
+
         $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+            "email"=>"required|string|max:300|email|unique:users",
+            "password"=>"required|min:4"
         ]);
 
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
-        }
-
-        $user = Auth::user();
+        return response()->json([
+            'message' => 'Invalid credentials',
+        ], 401); 
+    }
+        $user = $request->user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
+
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
+            'message' => 'Login successful',
+            'token' => $token,
         ]);
+
     }
 
-    // Déconnexion d'un utilisateur
-    public function logout(Request $request)
-    {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Déconnexion réussie']);
+    public function logout(Request $request){
+       $request->user()->tokens()->delete();
+       return response()->json(['message'=>'khrj 3la slaamtk']);
     }
 }
