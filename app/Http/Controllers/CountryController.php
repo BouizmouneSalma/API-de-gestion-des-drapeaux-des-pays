@@ -4,28 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CountryController extends Controller
 {
+    public function index()
+    {
+        return Country::all();
+    }
+
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'capital' => 'required|string|max:255',
-            'population' => 'required|integer',
-            'region' => 'required|string|max:255',
-            'flag' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        if ($request->hasFile('flag')) {
-            $flagPath = $request->file('flag')->store('flags', 'public');
-            $validatedData['flag_path'] = $flagPath;
-        }
-
-        $country = Country::create($validatedData);
-
+        $country = Country::create($request->all());
         return response()->json($country, 201);
     }
-}
 
+    public function show($id)
+    {
+        return Country::findOrFail($id);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $country = Country::findOrFail($id);
+        $country->update($request->all());
+        return response()->json($country, 200);
+    }
+
+    public function destroy($id)
+    {
+        Country::findOrFail($id)->delete();
+        return response()->json(['message' => 'Tga3eed a 3la slamtk'], 201);
+    }
+}

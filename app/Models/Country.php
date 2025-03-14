@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Country extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'name',
         'capital',
@@ -16,5 +13,9 @@ class Country extends Model
         'region',
         'flag_path',
     ];
-}
 
+    public function flag()
+    {
+        return $this->hasOne(Flag::class);
+    }
+}
