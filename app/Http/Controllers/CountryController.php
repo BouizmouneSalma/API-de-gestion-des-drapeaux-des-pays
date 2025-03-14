@@ -16,7 +16,6 @@ class CountryController extends Controller
             'population' => 'required|integer',
             'region' => 'required|string|max:255',
             'flag' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // Ajoutez d'autres validations selon les besoins
         ]);
 
         if ($request->hasFile('flag')) {
